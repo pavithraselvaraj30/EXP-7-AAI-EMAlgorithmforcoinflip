@@ -1,5 +1,8 @@
 # Exp:7 - Expectation–Maximization for the Two-Coin Flipping Experiment
-## By: Dr N.SARAVANAN - Assistant Professor,AIML,SEC
+
+### NAME:PAVITHRA S
+### REG.NO: 212223230147
+
 This project implements the coin-flipping **Expectation–Maximization (EM)** example demonstrated in the supplied video. It estimates the probability of heads for two coins when the identity of the coin used in each experiment is unknown.
 
 The implementation is intentionally a **mixture-of-coins model**, not a Hidden Markov Model (HMM). One hidden coin generates an entire experiment of ten tosses; the coin does not switch within that experiment.
@@ -164,14 +167,73 @@ The log-likelihood increases from one EM iteration to the next, which indicates 
 ### Requirements
 
 To run this script, kindly ensure you have the following Python libraries installed:
-* `numpy`[cite: 1]
-* `scipy` (specifically `scipy.stats.binom`)[cite: 1]
+* `numpy`
+* `scipy` (specifically `scipy.stats.binom`)
 
 ### Command
 
 ```bash
 python3 EMCOINFLIP.py
 ```
+
+## Program
+```py
+import numpy as np
+from scipy.stats import binom
+
+def em_coin_flipping_converge(tolerance=1e-6):
+    experiments = [
+        (5, 5), 
+        (9, 1), 
+        (8, 2), 
+        (4, 6), 
+        (7, 3)
+    ]
+
+    theta_a = 0.60
+    theta_b = 0.50
+    
+    iteration_count = 0
+    
+    while True:
+        iteration_count += 1
+        expected_heads_a, expected_tails_a = 0.0, 0.0
+        expected_heads_b, expected_tails_b = 0.0, 0.0
+        for heads, tails in experiments:
+            n = heads + tails
+
+            likelihood_a = binom.pmf(heads, n, theta_a)
+            likelihood_b = binom.pmf(heads, n, theta_b)
+
+            prob_a = likelihood_a / (likelihood_a + likelihood_b)
+            prob_b = likelihood_b / (likelihood_a + likelihood_b)
+            expected_heads_a += prob_a * heads
+            expected_tails_a += prob_a * tails
+            
+            expected_heads_b += prob_b * heads
+            expected_tails_b += prob_b * tails
+
+        new_theta_a = expected_heads_a / (expected_heads_a + expected_tails_a)
+        new_theta_b = expected_heads_b / (expected_heads_b + expected_tails_b)
+        if abs(new_theta_a - theta_a) < tolerance and abs(new_theta_b - theta_b) < tolerance:
+            theta_a = new_theta_a
+            theta_b = new_theta_b
+            break
+        theta_a = new_theta_a
+        theta_b = new_theta_b
+
+    print("CONVERGENCE REACHED")
+    print(f"Algorithm successfully converged after {iteration_count} iterations.")
+    print(f"Final estimated bias for Coin A (Theta_A) : {theta_a:.4f}")
+    print(f"Final estimated bias for Coin B (Theta_B) : {theta_b:.4f}")
+
+if __name__ == '__main__':
+    em_coin_flipping_converge()
+```
+
+## Output
+<img width="607" height="88" alt="image" src="https://github.com/user-attachments/assets/769e8b65-b6f8-416d-951f-4672d635915d" />
+
 
 ## Code guide
 
